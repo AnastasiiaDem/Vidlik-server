@@ -29,6 +29,7 @@
     "html-to-pdfmake": "^2.4.16",
     "jsonwebtoken": "^8.5.1",
     "jspdf": "^2.5.1",
+    "mongodb": "^5.7.0",
     "mongoose": "^6.11.2",
     "nodemailer": "^6.9.1",
     "nodemailer-express-handlebars": "^6.0.0",
