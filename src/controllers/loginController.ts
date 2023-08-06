@@ -8,19 +8,17 @@ import Token from '../model/TokenModel';
 const {ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 
 const loginUser = async (req: express.Request, res: express.Response) => {
-  const {email, password} = req.body;
-  
-  if (!email || !password) return res.status(400).json({message: 'Incorrect password or email'});
+  const {email, password, googleAuth} = req.body;
+
+  if (!googleAuth && (!email || !password)) return res.status(400).json({message: 'Incorrect password or email'});
   
   const foundUser = await User.findOne({email: email}).exec();
   
-  
   if (!foundUser) return res.status(409).json({message: 'Incorrect password or email'});
   
-  // const validPassword = await bcrypt.compare(password, foundUser.password);
+  const validPassword = await bcrypt.compare(password, foundUser.password);
   
-  if (password == foundUser.password) {
-    
+  if (googleAuth || validPassword) {
     const accessToken = jwt.sign(
       {
         UserData: {

@@ -10,7 +10,7 @@ const logoutUser = async (req: express.Request, res: express.Response) => {
   const refreshToken = cookies.token;
   
   const foundUser = await User.findOne({refreshToken: refreshToken}).exec();
-  
+
   if (!foundUser) {
     res.clearCookie('token', {httpOnly: true, sameSite: 'none', secure: true});
     return res.status(204).json({error: 'No token'});

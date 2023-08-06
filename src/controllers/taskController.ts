@@ -3,9 +3,10 @@ import Token from '../model/TokenModel';
 import express from 'express';
 import Task from '../model/TaskModel';
 import mongoose from 'mongoose';
-//додавання завдань в бд
+
 export const createTask = async (req: express.Request, res: express.Response) => {
-  const {employeeId, projectId, title, description, status, deadline} = req.body;
+  const {userId, title, status, workMin, shortBreakMin, longBreakMin, rounds} = req.body;
+  
   const cookies = req.cookies;
   if (!cookies?.token) return res.status(401).json({error: 'error no cookies'});
   
@@ -14,18 +15,20 @@ export const createTask = async (req: express.Request, res: express.Response) =>
   const foundUser = await User.findById(foundToken?.userId);
   if (!foundUser) return res.status(403).json({error: 'error user not found'});
   
-  if (!title || !description || !status || !deadline)
+  
+  if (!userId || !title || !status || !workMin || !shortBreakMin || !rounds)
     return res.status(400).json({message: `Properties are required`});
   
   const id = new mongoose.Types.ObjectId();
   const newTask = new Task({
     _id: id,
-    employeeId: employeeId,
-    projectId: projectId,
+    userId: userId,
     title: title,
-    description: description,
     status: status,
-    deadline: deadline
+    workMin: workMin,
+    shortBreakMin: shortBreakMin,
+    longBreakMin: longBreakMin,
+    rounds: rounds
   });
   newTask.save((err, data) => {
     if (err) {
@@ -34,12 +37,13 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     return res.status(200).json(data);
   });
 };
-//оновлення завдань в бд
+
 export const updateTask = async (req: express.Request, res: express.Response) => {
   const id = req.params.id;
   !id && res.status(400).json({error: 'no id'});
   
-  const {title, description, status, deadline, employeeId} = req.body;
+  const {userId, title, status, workMin, shortBreakMin, longBreakMin, rounds} = req.body;
+
   const cookies = req.cookies;
   if (!cookies?.token) return res.status(401).json({error: 'error no cookies'});
   
@@ -48,15 +52,18 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   const foundUser = await User.findById(foundToken?.userId);
   if (!foundUser) return res.status(403).json({error: 'error user not found'});
   
-  if (!title || !description || !status || !deadline)
+  
+  if (!userId || !title || !status || !workMin || !shortBreakMin || !longBreakMin || !rounds)
     return res.status(400).json({message: `Properties are required`});
   
   const update = {
+    ...(userId ? {userId: userId} : {}),
     ...(title ? {title: title} : {}),
-    ...(description ? {description: description} : {}),
     ...(status ? {status: status} : {}),
-    ...(deadline ? {deadline: deadline} : {}),
-    ...(employeeId ? {employeeId: employeeId} : {}),
+    ...(workMin ? {workMin: workMin} : {}),
+    ...(shortBreakMin ? {shortBreakMin: shortBreakMin} : {}),
+    ...(longBreakMin ? {longBreakMin: longBreakMin} : {}),
+    ...(rounds ? {rounds: rounds} : {})
   };
   try {
     const result = await Task.findByIdAndUpdate(id, update, {new: true});
@@ -66,7 +73,7 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
     res.status(400).json({error: error});
   }
 };
-//видалення завдань з бд
+
 export const deleteTask = async (req: express.Request, res: express.Response) => {
   const id = req.params.id;
   !id && res.status(400).json({error: 'no id'});
@@ -86,9 +93,9 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
     res.status(400).json({error: error});
   }
 };
-//отримання списку усіх завдань з бд
+
 export const getTasks = async (req: express.Request, res: express.Response) => {
-  const {title, description, status, deadline} = req.query;
+  const {userId, title, status, workMin, shortBreakMin, longBreakMin, rounds} = req.query;
   const cookies = req.cookies;
   if (!cookies?.token) return res.status(401).json({error: 'error no cookies'});
   
@@ -101,13 +108,15 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
     const tasks = await Task.find({
       $and: [
         {...(title ? {title: title} : {})},
-        {...(description ? {description: description} : {})},
         {...(status ? {status: status} : {})},
-        {...(deadline ? {deadline: deadline} : {})}
-      ],
+        {...(workMin ? {workMin: workMin} : {})},
+        {...(shortBreakMin ? {shortBreakMin: shortBreakMin} : {})},
+        {...(longBreakMin ? {longBreakMin: longBreakMin} : {})},
+        {...(rounds ? {rounds: rounds} : {})}
+      ]
     });
     if (tasks.length == 0) return res.status(400).json({message: 'No content'});
-    res.status(200).json({tasks: tasks});
+    res.status(200).json(tasks);
   } catch (error) {
     console.log(error);
     res.status(400).json({error: error});
