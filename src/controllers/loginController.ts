@@ -12,7 +12,7 @@ const loginUser = async (req: express.Request, res: express.Response) => {
 
   if (!googleAuth && (!email || !password)) return res.status(400).json({message: 'Incorrect password or email'});
   
-  const foundUser = await User.findOne({email: email}).clone().catch(err => console.log(err));
+  const foundUser = await User.findOne({email: email}).exec();
   
   if (!foundUser) return res.status(409).json({message: 'Incorrect password or email'});
   
