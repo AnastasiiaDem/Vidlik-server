@@ -2,12 +2,6 @@ import mongoose, {Schema} from 'mongoose';
 
 export {};
 
-enum RoleEnum {
-  'TeamMember' = 'TeamMember',
-  'ProjectManager' = 'ProjectManager',
-  'Admin' = 'Admin'
-}
-
 interface IUser {
   _id: Schema.Types.ObjectId;
   firstName: string;

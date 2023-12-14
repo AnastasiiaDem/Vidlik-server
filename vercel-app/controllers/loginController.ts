@@ -5,7 +5,6 @@ import process from 'process';
 import User from '../model/UserModel';
 import Token from '../model/TokenModel';
 
-const {ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET} = process.env;
 
 const loginUser = async (req: express.Request, res: express.Response) => {
   const {email, password, googleAuth} = req.body;
